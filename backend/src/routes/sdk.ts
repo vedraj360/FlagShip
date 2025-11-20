@@ -32,20 +32,17 @@ router.get('/:key/flags', apiLimiter, async (req, res) => {
     return res.status(404).json({ message: 'Application not found or invalid key' });
   }
 
-  // Transform array to object for easier O(1) lookup in clients
-  const flagsMap = app.flags.reduce((acc, flag) => {
-    acc[flag.key] = {
-      key: flag.key,
-      enabled: flag.enabled,
-      displayName: flag.displayName,
-      description: flag.description,
-      value: flag.value,
-      type: flag.type
-    };
-    return acc;
-  }, {} as Record<string, any>);
+  // Return flags as an array
+  const flagsArray = app.flags.map(flag => ({
+    key: flag.key,
+    enabled: flag.enabled,
+    displayName: flag.displayName,
+    description: flag.description,
+    value: flag.value,
+    type: flag.type
+  }));
 
-  res.json(flagsMap);
+  res.json(flagsArray);
 });
 
 export default router;
