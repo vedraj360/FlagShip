@@ -22,8 +22,25 @@ app.options('*', cors()); // Pre-flight for all routes
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/auth', authRoutes);
-app.use('/applications', appRoutes);
-app.use('/sdk', sdkRoutes);
+// Health checks
+app.get(['/', '/health'], (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Create a router for API routes
+const apiRouter = express.Router();
+apiRouter.use('/auth', authRoutes);
+apiRouter.use('/applications', appRoutes);
+apiRouter.use('/sdk', sdkRoutes);
+
+// Mount API routes at both /api and root to be flexible
+app.use('/api', apiRouter);
+app.use('/', apiRouter);
+
+// Catch-all 404 handler for debugging
+app.use((req, res) => {
+  console.log(`404 Not Found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ message: `Route not found: ${req.method} ${req.originalUrl}` });
+});
 
 export default app;
