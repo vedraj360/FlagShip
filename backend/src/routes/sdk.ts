@@ -35,6 +35,7 @@ router.get('/:key/flags', apiLimiter, async (req, res) => {
   // Transform array to object for easier O(1) lookup in clients
   const flagsMap = app.flags.reduce((acc, flag) => {
     acc[flag.key] = {
+      key: flag.key,
       enabled: flag.enabled,
       displayName: flag.displayName,
       description: flag.description,
