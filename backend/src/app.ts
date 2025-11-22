@@ -22,7 +22,7 @@ app.use(cors({
 }));
 app.options('*', cors()); // Pre-flight for all routes
 
-app.use(express.json());
+app.use(express.json({ limit: '1mb' })); // Limit request body size to 1MB
 app.use(cookieParser());
 
 // Health checks

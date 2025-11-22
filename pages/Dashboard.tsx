@@ -8,12 +8,16 @@ const Dashboard: React.FC = () => {
   const [newAppName, setNewAppName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
+  const [loading, setLoading] = useState(true);
+
   const fetchApps = async () => {
     try {
       const res = await api.get('/applications');
       setApps(res.data);
     } catch (error) {
       console.error('Failed to fetch apps', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,6 +37,14 @@ const Dashboard: React.FC = () => {
       alert('Failed to create application');
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in">

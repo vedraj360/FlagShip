@@ -71,6 +71,20 @@ export const createFlag = async (req: AuthRequest, res: Response) => {
   const app = await prisma.application.findUnique({ where: { id: req.params.id } });
   if (!app || (app.createdById !== req.user!.userId && req.user!.role !== 'ADMIN')) return res.status(403).send();
 
+  // Validate flag value
+  if (req.body.value) {
+    if (req.body.value.length > 10000) {
+      return res.status(400).json({ message: 'Flag value exceeds maximum length of 10000 characters' });
+    }
+    if (req.body.type === 'JSON') {
+      try {
+        JSON.parse(req.body.value);
+      } catch (e) {
+        return res.status(400).json({ message: 'Invalid JSON value' });
+      }
+    }
+  }
+
   try {
     const flag = await prisma.flag.create({
       data: {
@@ -94,6 +108,20 @@ export const updateFlag = async (req: AuthRequest, res: Response) => {
   // Check flag exists and access
   const flag = await prisma.flag.findUnique({ where: { id: req.params.flagId }, include: { application: true } });
   if (!flag || (flag.application.createdById !== req.user!.userId && req.user!.role !== 'ADMIN')) return res.status(403).send();
+
+  // Validate flag value
+  if (req.body.value) {
+    if (req.body.value.length > 10000) {
+      return res.status(400).json({ message: 'Flag value exceeds maximum length of 10000 characters' });
+    }
+    if (req.body.type === 'JSON') {
+      try {
+        JSON.parse(req.body.value);
+      } catch (e) {
+        return res.status(400).json({ message: 'Invalid JSON value' });
+      }
+    }
+  }
 
   const updated = await prisma.flag.update({
     where: { id: req.params.flagId },
