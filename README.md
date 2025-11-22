@@ -2,7 +2,7 @@
 
 FlagShip is a high-performance, self-hostable feature flag management system designed for speed, security, and simplicity. It provides a real-time dashboard for managing feature toggles and a lightning-fast SDK endpoint for your applications.
 
-![Dashboard Preview](https://via.placeholder.com/800x400?text=FlagShip+Dashboard+Preview)
+![Dashboard Preview](./assets/dashboard-preview.png)
 
 ## 🚀 Features
 
