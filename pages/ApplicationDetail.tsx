@@ -137,6 +137,10 @@ const ApplicationDetail: React.FC = () => {
           setJsonError('Missing or invalid "type"');
           return null;
         }
+        if (item.value === undefined || item.value === null || String(item.value).trim() === '') {
+          setJsonError(`Value is required for key "${item.key}"`);
+          return null;
+        }
       }
       
       setJsonError(null);
@@ -178,7 +182,8 @@ const ApplicationDetail: React.FC = () => {
       setJsonInput('');
       setJsonError(null);
     } catch (e) {
-      alert('Error importing flag(s)');
+      const msg = (e as any).response?.data?.message || 'Error importing flag(s)';
+      alert(msg);
       fetchData(); // Refetch only on error
     }
   };
