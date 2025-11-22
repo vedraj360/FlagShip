@@ -2,6 +2,7 @@ import { Response } from 'express';
 import prisma from '../prismaClient';
 import { AuthRequest } from '../middleware/auth';
 import crypto from 'crypto';
+import { invalidateCache } from '../routes/sdk';
 
 // Helper to check access
 const checkAppAccess = async (userId: string, appId: string) => {
@@ -82,6 +83,7 @@ export const createFlag = async (req: AuthRequest, res: Response) => {
       }
     });
     res.status(201).json(flag);
+    invalidateCache(app.key);
   } catch (e) {
     res.status(400).json({ message: 'Key already exists or invalid' });
   }
@@ -103,6 +105,7 @@ export const updateFlag = async (req: AuthRequest, res: Response) => {
     }
   });
   res.json(updated);
+  invalidateCache(flag.application.key);
 };
 
 export const deleteFlag = async (req: AuthRequest, res: Response) => {
@@ -111,4 +114,5 @@ export const deleteFlag = async (req: AuthRequest, res: Response) => {
 
   await prisma.flag.delete({ where: { id: req.params.flagId } });
   res.json({ message: 'Deleted' });
+  invalidateCache(flag.application.key);
 };

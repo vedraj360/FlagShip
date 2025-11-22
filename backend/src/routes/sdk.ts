@@ -5,7 +5,13 @@ import { apiLimiter } from '../middleware/rateLimit';
 const router = Router();
 
 // Cache structure: Map<appKey, Flag[]>
-const sdkCache = new Map<string, any[]>();
+// Cache structure: Map<appKey, Flag[]>
+export const sdkCache = new Map<string, any[]>();
+
+export const invalidateCache = (appKey: string) => {
+  sdkCache.delete(appKey);
+  console.log(`Invalidated cache for app: ${appKey}`);
+};
 
 export const warmupCache = async () => {
   console.log('Warming up SDK cache...');
