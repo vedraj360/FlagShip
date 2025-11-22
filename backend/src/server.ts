@@ -4,7 +4,7 @@ dotenv.config();
 import app from './app';
 import prisma from './prismaClient';
 
-import { warmupCache } from './routes/sdk';
+import { warmupCache, startCacheRefreshJob } from './routes/sdk';
 
 const PORT = process.env.PORT || 4000;
 
@@ -15,6 +15,7 @@ app.listen(PORT, async () => {
     await prisma.$connect();
     console.log('Database connection established successfully');
     await warmupCache();
+    startCacheRefreshJob();
   } catch (error) {
     console.error('Failed to connect to the database:', error);
   }

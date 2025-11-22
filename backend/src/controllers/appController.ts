@@ -71,17 +71,26 @@ export const createFlag = async (req: AuthRequest, res: Response) => {
   const app = await prisma.application.findUnique({ where: { id: req.params.id } });
   if (!app || (app.createdById !== req.user!.userId && req.user!.role !== 'ADMIN')) return res.status(403).send();
 
-  // Validate flag value
-  if (req.body.value) {
-    if (req.body.value.length > 10000) {
-      return res.status(400).json({ message: 'Flag value exceeds maximum length of 10000 characters' });
-    }
-    if (req.body.type === 'JSON') {
-      try {
-        JSON.parse(req.body.value);
-      } catch (e) {
-        return res.status(400).json({ message: 'Invalid JSON value' });
-      }
+  // Validate required fields
+  if (!req.body.key || !req.body.key.trim()) {
+    return res.status(400).json({ message: 'Key is required' });
+  }
+
+  // Value is mandatory
+  if (req.body.value === null || req.body.value === undefined || String(req.body.value).trim() === '') {
+    return res.status(400).json({ message: 'Value is required' });
+  }
+
+  // Validate flag value length and JSON
+  if (req.body.value.length > 10000) {
+    return res.status(400).json({ message: 'Flag value exceeds maximum length of 10000 characters' });
+  }
+
+  if (req.body.type === 'JSON') {
+    try {
+      JSON.parse(req.body.value);
+    } catch (e) {
+      return res.status(400).json({ message: 'Invalid JSON value' });
     }
   }
 
@@ -109,17 +118,21 @@ export const updateFlag = async (req: AuthRequest, res: Response) => {
   const flag = await prisma.flag.findUnique({ where: { id: req.params.flagId }, include: { application: true } });
   if (!flag || (flag.application.createdById !== req.user!.userId && req.user!.role !== 'ADMIN')) return res.status(403).send();
 
-  // Validate flag value
-  if (req.body.value) {
-    if (req.body.value.length > 10000) {
-      return res.status(400).json({ message: 'Flag value exceeds maximum length of 10000 characters' });
-    }
-    if (req.body.type === 'JSON') {
-      try {
-        JSON.parse(req.body.value);
-      } catch (e) {
-        return res.status(400).json({ message: 'Invalid JSON value' });
-      }
+  // Value is mandatory
+  if (req.body.value === null || req.body.value === undefined || String(req.body.value).trim() === '') {
+    return res.status(400).json({ message: 'Value is required' });
+  }
+
+  // Validate flag value length and JSON
+  if (req.body.value.length > 10000) {
+    return res.status(400).json({ message: 'Flag value exceeds maximum length of 10000 characters' });
+  }
+
+  if (req.body.type === 'JSON') {
+    try {
+      JSON.parse(req.body.value);
+    } catch (e) {
+      return res.status(400).json({ message: 'Invalid JSON value' });
     }
   }
 

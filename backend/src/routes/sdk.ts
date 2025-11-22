@@ -13,8 +13,8 @@ export const invalidateCache = (appKey: string) => {
   console.log(`Invalidated cache for app: ${appKey}`);
 };
 
-export const warmupCache = async () => {
-  console.log('Warming up SDK cache...');
+export const warmupCache = async (silent = false) => {
+  if (!silent) console.log('Warming up SDK cache...');
   try {
     const apps = await prisma.application.findMany({
       include: {
@@ -43,10 +43,18 @@ export const warmupCache = async () => {
       }));
       sdkCache.set(app.key, flagsArray);
     });
-    console.log(`SDK cache warmed up with ${apps.length} applications.`);
+    if (!silent) console.log(`SDK cache warmed up with ${apps.length} applications.`);
   } catch (error) {
     console.error('Failed to warm up SDK cache:', error);
   }
+};
+
+export const startCacheRefreshJob = () => {
+  // Refresh cache every 60 seconds
+  setInterval(() => {
+    warmupCache(true); // Silent refresh
+  }, 60000);
+  console.log('Background cache refresh job started (every 60s)');
 };
 
 router.get('/:key/flags', async (req, res) => {
