@@ -1,31 +1,63 @@
-# FlagShip - Feature Flag Management System
+# FlagShip - Open Source Feature Flag Management
 
-## Architecture
-React Frontend (Vite) <-> Node/Express API <-> PostgreSQL (Prisma)
+FlagShip is a high-performance, self-hostable feature flag management system designed for speed, security, and simplicity. It provides a real-time dashboard for managing feature toggles and a lightning-fast SDK endpoint for your applications.
 
-## Setup & Deployment
+![Dashboard Preview](https://via.placeholder.com/800x400?text=FlagShip+Dashboard+Preview)
+
+## 🚀 Features
+
+-   **Real-time Dashboard**: Create, update, and delete feature flags instantly.
+-   **High Performance**:
+    -   **In-Memory Caching**: SDK endpoints serve flags from server memory (RAM) for sub-millisecond response times.
+    -   **Smart Invalidation**: Cache is automatically invalidated and refreshed only when flags change.
+    -   **Optimistic UI**: Dashboard updates instantly without waiting for network round-trips.
+-   **Secure by Design**:
+    -   **JWT Authentication**: Secure access and refresh token rotation.
+    -   **Rate Limiting**: Brute-force protection on auth endpoints.
+    -   **CSRF Protection**: Strict SameSite cookie policies.
+    -   **Input Validation**: Strict Zod schemas and JSON validation.
+-   **Developer Friendly**:
+    -   **JSON Import**: Bulk import flags via JSON paste or file upload.
+    -   **Type Support**: Supports Boolean, String, Number, and JSON flag types.
+    -   **Simple SDK**: REST API based SDK that works with any language.
+
+## 🛠️ Tech Stack
+
+-   **Frontend**: React, Vite, TailwindCSS
+-   **Backend**: Node.js, Express, TypeScript
+-   **Database**: PostgreSQL (via Prisma ORM)
+-   **Security**: Helmet, Rate-Limit, BCrypt, JWT
+
+## 🏁 Getting Started
 
 ### Prerequisites
-- Node.js 18+
-- PostgreSQL Database
 
-### 1. Database Setup
-Ensure PostgreSQL is running. Create a database named `featureflags`.
+-   Node.js (v18+)
+-   PostgreSQL Database
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/vedraj360/flagship.git
+cd flagship
+```
 
 ### 2. Backend Setup
+
 ```bash
 cd backend
+
 # Install dependencies
 npm install
 
-# Configure Environment
+# Configure Environment Variables
 cp .env.example .env
-# Edit .env with your DB URL and JWT secrets
+# Edit .env and add your DATABASE_URL and generate strong JWT secrets
 
-# Run Migrations
+# Run Database Migrations
 npx prisma migrate dev --name init
 
-# Seed Database (Creates admin@example.com / password123)
+# Seed Database (Optional - creates admin@example.com / password123)
 npm run seed
 
 # Start Server
@@ -33,69 +65,81 @@ npm run dev
 ```
 
 ### 3. Frontend Setup
+
 ```bash
-# (In root directory)
+cd .. # Go back to root
+
+# Install dependencies
 npm install
-npm start
+
+# Start Development Server
+npm run dev
 ```
-Note: This React code structure assumes a standard React Scripts or Vite setup. Since only file contents were provided, ensure you have a basic `package.json` for the frontend with `react`, `react-dom`, `react-router-dom`, `axios`, `react-scripts` (or `vite`).
 
-### SDK Usage Example (Node.js Client)
+Visit `http://localhost:5173` to access the dashboard.
 
-To use the flags in another Node.js application:
+## 🔒 Environment Variables
 
-```javascript
-const axios = require('axios');
+Create a `.env` file in the `backend` directory:
 
-const APP_KEY = 'sample-app-key-123'; // From your Dashboard
-const API_URL = 'http://localhost:4000/sdk';
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/flagship"
+JWT_ACCESS_SECRET="your-super-secret-access-key-at-least-32-chars"
+JWT_REFRESH_SECRET="your-super-secret-refresh-key-at-least-32-chars"
+PORT=3000
+```
 
-async function checkFeature(flagKey) {
-  try {
-    const response = await axios.get(`${API_URL}/${APP_KEY}/flags`);
-    const flags = response.data;
-    
-    if (flags[flagKey]) {
-      console.log(`Feature ${flagKey} is ENABLED`);
-      // Run feature code
-    } else {
-      console.log(`Feature ${flagKey} is DISABLED`);
-    }
-  } catch (error) {
-    console.error('Failed to fetch flags', error.message);
-    // Default to false on error
+> **Security Note**: Never commit your `.env` file. The application will fail to start if JWT secrets are not set.
+
+## � Deployment (Dokploy)
+
+FlagShip is ready to be deployed on **Dokploy** (or any Docker-based platform).
+
+1.  **Create a New Application** in Dokploy.
+2.  **Connect your GitHub Repository**.
+3.  **Configure Build Settings**:
+    *   **Dockerfile Path**: `./Dockerfile` (This Dockerfile builds both frontend and backend).
+    *   **Build Context**: `/`
+4.  **Environment Variables**:
+    Add the following variables in the "Environment" tab:
+    *   `DATABASE_URL`: Your PostgreSQL connection string.
+    *   `JWT_ACCESS_SECRET`: A strong random string.
+    *   `JWT_REFRESH_SECRET`: A strong random string.
+    *   `PORT`: `3000` (Internal container port).
+5.  **Deploy**: Click "Deploy" and wait for the build to finish.
+6.  **Domain**: Map your domain (e.g., `flagship.yourdomain.com`) to the application port `3000`.
+
+The Dockerfile handles building the React frontend and serving it statically via the Node.js backend, so you only need to deploy a single container!
+
+## �📚 API Documentation
+
+### SDK Endpoint (Public)
+
+**GET** `/sdk/:clientKey/flags`
+
+Returns all enabled flags for the application.
+
+```json
+[
+  {
+    "key": "new_feature",
+    "enabled": true,
+    "value": "v2.0",
+    "type": "STRING"
   }
-}
-
-// Usage
-checkFeature('new_feature_beta');
+]
 ```
 
-### SDK Usage Example (React Client)
+### Management API (Private)
 
-```tsx
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+-   **POST** `/auth/login`: Authenticate user
+-   **GET** `/applications`: List applications
+-   **POST** `/applications/:id/flags`: Create a flag
 
-const useFeatureFlag = (flagKey: string) => {
-  const [isEnabled, setIsEnabled] = useState(false);
+## 🤝 Contributing
 
-  useEffect(() => {
-    axios.get('http://localhost:4000/sdk/sample-app-key-123/flags')
-      .then(res => {
-        setIsEnabled(!!res.data[flagKey]);
-      })
-      .catch(err => console.error(err));
-  }, [flagKey]);
+Contributions are welcome! Please fork the repository and submit a pull request.
 
-  return isEnabled;
-};
+## 📄 License
 
-// Component
-const MyComponent = () => {
-  const showBeta = useFeatureFlag('new_feature_beta');
-  
-  if (!showBeta) return null;
-  return <div>Beta Feature Active!</div>;
-}
-```
+MIT License - see the [LICENSE](LICENSE) file for details.
