@@ -49,7 +49,7 @@ export const warmupCache = async () => {
   }
 };
 
-router.get('/:key/flags', apiLimiter, async (req, res) => {
+router.get('/:key/flags', async (req, res) => {
   const { key } = req.params;
 
   // Check cache first

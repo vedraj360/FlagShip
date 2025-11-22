@@ -48,15 +48,19 @@ const ApplicationDetail: React.FC = () => {
     e.preventDefault();
     try {
       if (editingFlag) {
-        await api.put(`/applications/${id}/flags/${editingFlag.id}`, formData);
+        const updated = await api.put(`/applications/${id}/flags/${editingFlag.id}`, formData);
+        setFlags(flags.map(f => f.id === editingFlag.id ? updated.data : f));
       } else {
-        await api.post(`/applications/${id}/flags`, formData);
+        const created = await api.post(`/applications/${id}/flags`, formData);
+        setFlags([...flags, created.data]);
       }
       setIsModalOpen(false);
       setEditingFlag(null);
       setFormData({ key: '', displayName: '', description: '', enabled: false, type: 'BOOLEAN', value: '' });
-      fetchData();
-    } catch (e) { alert('Error saving flag'); }
+    } catch (e) { 
+      alert('Error saving flag');
+      fetchData(); // Refetch only on error
+    }
   };
 
   const handleToggle = async (flag: FeatureFlag) => {
@@ -144,15 +148,15 @@ const ApplicationDetail: React.FC = () => {
     if (!items) return;
 
     try {
-      for (const item of items) {
-        await api.post(`/applications/${id}/flags`, item);
-      }
+      const promises = items.map(item => api.post(`/applications/${id}/flags`, item));
+      const results = await Promise.all(promises);
+      setFlags([...flags, ...results.map(r => r.data)]);
       setIsImportModalOpen(false);
       setJsonInput('');
       setJsonError(null);
-      fetchData();
     } catch (e) {
       alert('Error importing flag(s)');
+      fetchData(); // Refetch only on error
     }
   };
 
