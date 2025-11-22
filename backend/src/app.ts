@@ -8,6 +8,9 @@ import sdkRoutes from './routes/sdk';
 
 const app = express();
 
+// Trust the first proxy (required for rate limiting behind proxies like Nginx/Docker)
+app.set('trust proxy', 1);
+
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
