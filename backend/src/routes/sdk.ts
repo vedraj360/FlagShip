@@ -54,6 +54,7 @@ router.get('/:key/flags', apiLimiter, async (req, res) => {
 
   // Check cache first
   if (sdkCache.has(key)) {
+    res.setHeader('Cache-Control', 'no-cache'); // Browser should check with server (which serves from memory)
     return res.json(sdkCache.get(key));
   }
 
@@ -95,6 +96,7 @@ router.get('/:key/flags', apiLimiter, async (req, res) => {
   // Update cache
   sdkCache.set(key, flagsArray);
 
+  res.setHeader('Cache-Control', 'no-cache');
   res.json(flagsArray);
 });
 

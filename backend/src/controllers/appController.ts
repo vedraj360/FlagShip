@@ -63,6 +63,7 @@ export const getFlags = async (req: AuthRequest, res: Response) => {
   if (!app || (app.createdById !== req.user!.userId && req.user!.role !== 'ADMIN')) return res.status(403).send();
 
   const flags = await prisma.flag.findMany({ where: { applicationId: req.params.id }, orderBy: { createdAt: 'asc' } });
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.json(flags);
 };
 
