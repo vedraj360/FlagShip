@@ -104,6 +104,19 @@ const ApplicationDetail: React.FC = () => {
     } catch (e) { alert('Error deleting flag'); }
   };
 
+  const handleDuplicateFlag = (flag: FeatureFlag) => {
+    setEditingFlag(null); // Ensure it's treated as a new flag
+    setFormData({
+      key: `${flag.key}_copy`,
+      displayName: `${flag.displayName} (Copy)`,
+      description: flag.description || '',
+      enabled: flag.enabled,
+      type: flag.type || 'BOOLEAN',
+      value: flag.value || ''
+    });
+    setIsModalOpen(true);
+  };
+
   const openModal = (flag?: FeatureFlag) => {
     if (flag) {
       setEditingFlag(flag);
@@ -322,6 +335,15 @@ const ApplicationDetail: React.FC = () => {
                     >
                       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button 
+                      onClick={() => handleDuplicateFlag(flag)} 
+                      className="p-1 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                      title="Duplicate"
+                    >
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                       </svg>
                     </button>
                     <button 
