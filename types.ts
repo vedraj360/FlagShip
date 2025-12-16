@@ -9,6 +9,13 @@ export interface User {
   role: Role;
 }
 
+export interface Tag {
+  id: string;
+  name: string;
+  color: string;
+  applicationId: string;
+}
+
 export interface FeatureFlag {
   id: string;
   key: string;
@@ -19,6 +26,7 @@ export interface FeatureFlag {
   type: string;
   createdAt: string;
   updatedAt: string;
+  tags?: Tag[];
 }
 
 export interface Application {
@@ -37,3 +45,4 @@ export interface Application {
 export interface LoginResponse {
   user: User;
 }
+
