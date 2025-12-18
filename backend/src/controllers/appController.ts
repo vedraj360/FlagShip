@@ -99,6 +99,8 @@ export const createFlag = async (req: AuthRequest, res: Response) => {
   }
 
   try {
+    const validTagIds: string[] = Array.isArray(req.body.tagIds) ? req.body.tagIds : [];
+
     const flag = await prisma.flag.create({
       data: {
         applicationId: req.params.id,
@@ -107,10 +109,14 @@ export const createFlag = async (req: AuthRequest, res: Response) => {
         description: req.body.description,
         enabled: req.body.enabled,
         value: req.body.value,
-        type: req.body.type || 'BOOLEAN'
-      }
+        type: req.body.type || 'BOOLEAN',
+        tags: {
+          connect: validTagIds.map(id => ({ id }))
+        }
+      },
+      include: { tags: true }
     });
-    res.status(201).json(flag);
+    res.json(flag);
     invalidateCache(app.key);
   } catch (e) {
     res.status(400).json({ message: 'Key already exists or invalid' });
@@ -140,6 +146,8 @@ export const updateFlag = async (req: AuthRequest, res: Response) => {
     }
   }
 
+  const validTagIds: string[] = Array.isArray(req.body.tagIds) ? req.body.tagIds : [];
+
   const updated = await prisma.flag.update({
     where: { id: req.params.flagId },
     data: {
@@ -147,8 +155,12 @@ export const updateFlag = async (req: AuthRequest, res: Response) => {
       description: req.body.description,
       enabled: req.body.enabled,
       value: req.body.value,
-      type: req.body.type
-    }
+      type: req.body.type,
+      tags: {
+        set: validTagIds.map(id => ({ id }))
+      }
+    },
+    include: { tags: true }
   });
   res.json(updated);
   invalidateCache(flag.application.key);
